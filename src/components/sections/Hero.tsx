@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { site } from "@/config/site";
+import { useSiteConfig } from "@/config/SiteConfigProvider";
 import { Scene3D } from "@/components/three/Scene3D";
 
 export function Hero() {
+  const { site } = useSiteConfig();
   if (!site.hero.enabled) return null;
   const { hero } = site;
 

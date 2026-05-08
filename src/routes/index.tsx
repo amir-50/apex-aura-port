@@ -6,21 +6,31 @@ import { Projects } from "@/components/sections/Projects";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Journal } from "@/components/sections/Journal";
 import { Contact } from "@/components/sections/Contact";
+import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
+// Section registry — homepage composes itself from site.sections.order
+const SECTIONS = {
+  hero: Hero,
+  about: About,
+  services: Services,
+  projects: Projects,
+  testimonials: Testimonials,
+  journal: Journal,
+  contact: Contact,
+} as const;
+
 function Index() {
+  const { site } = useSiteConfig();
   return (
     <>
-      <Hero />
-      <About />
-      <Services />
-      <Projects />
-      <Testimonials />
-      <Journal />
-      <Contact />
+      {site.sections.order.map((key) => {
+        const C = SECTIONS[key];
+        return C ? <C key={key} /> : null;
+      })}
     </>
   );
 }

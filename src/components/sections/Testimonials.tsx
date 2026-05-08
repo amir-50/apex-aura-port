@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
-import { site } from "@/config/site";
+import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 export function Testimonials() {
+  const { site } = useSiteConfig();
   if (!site.testimonials.enabled) return null;
   const { testimonials } = site;
 
