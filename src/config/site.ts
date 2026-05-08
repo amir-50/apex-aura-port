@@ -27,6 +27,22 @@ export const site = {
     tagline: "Crafting digital experiences with intention.",
   },
 
+  /* ── Theme tokens (live-editable in admin) ─────────────── */
+  theme: {
+    background: "oklch(0.16 0.012 260)",
+    foreground: "oklch(0.97 0.005 240)",
+    primary: "oklch(0.84 0.13 86)",      // gold accent
+    accent: "oklch(0.65 0.18 280)",       // violet accent
+    radius: "0.875rem",
+  },
+
+  /* ── Section visibility & order (admin-controlled) ─────── */
+  sections: {
+    order: ["hero", "about", "services", "projects", "testimonials", "journal", "contact"] as Array<
+      "hero" | "about" | "services" | "projects" | "testimonials" | "journal" | "contact"
+    >,
+  },
+
   /* ── SEO defaults (overridable per route) ──────────────── */
   seo: {
     title: "LUXE — Premium Creative Portfolio",
