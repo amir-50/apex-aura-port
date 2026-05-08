@@ -11,6 +11,8 @@ import {
 import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { SiteConfigProvider } from "@/config/SiteConfigProvider";
+import { AdminDashboard } from "@/components/admin/AdminDashboard";
 
 function NotFoundComponent() {
   return (
@@ -117,13 +119,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="dark min-h-screen flex flex-col">
-        <Header />
-        <main className="flex-1">
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
+      <SiteConfigProvider>
+        <div className="dark min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <Footer />
+          <AdminDashboard />
+        </div>
+      </SiteConfigProvider>
     </QueryClientProvider>
   );
 }
