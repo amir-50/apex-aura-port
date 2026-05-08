@@ -4,6 +4,7 @@ import { Mail, Phone, MapPin, ArrowRight } from "lucide-react";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 export function Contact() {
+  const { site } = useSiteConfig();
   if (!site.contact.enabled) return null;
   const { contact } = site;
   const [sent, setSent] = useState(false);

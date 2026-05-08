@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 export function Projects() {
+  const { site } = useSiteConfig();
   if (!site.projects.enabled) return null;
   const { projects } = site;
   const [filter, setFilter] = useState("All");

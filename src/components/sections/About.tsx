@@ -17,6 +17,7 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
 }
 
 export function About() {
+  const { site } = useSiteConfig();
   if (!site.about.enabled) return null;
   const { about } = site;
 

@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 export function Services() {
+  const { site } = useSiteConfig();
   if (!site.services.enabled) return null;
   const { services } = site;
 

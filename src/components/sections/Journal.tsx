@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 export function Journal() {
+  const { site } = useSiteConfig();
   if (!site.journal.enabled) return null;
   const { journal } = site;
 

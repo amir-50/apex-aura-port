@@ -3,6 +3,7 @@ import { Quote } from "lucide-react";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 export function Testimonials() {
+  const { site } = useSiteConfig();
   if (!site.testimonials.enabled) return null;
   const { testimonials } = site;
 

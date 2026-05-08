@@ -5,6 +5,7 @@ import { useSiteConfig } from "@/config/SiteConfigProvider";
 import { Scene3D } from "@/components/three/Scene3D";
 
 export function Hero() {
+  const { site } = useSiteConfig();
   if (!site.hero.enabled) return null;
   const { hero } = site;
 
