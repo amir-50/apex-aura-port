@@ -11,7 +11,7 @@ const ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
 };
 
 export function Footer() {
-  const { footer, brand } = site;
+  const { site } = useSiteConfig(); const { footer, brand } = site;
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
 

@@ -14,7 +14,7 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const { brand, header } = site;
+  const { site } = useSiteConfig(); const { brand, header } = site;
 
   return (
     <header
