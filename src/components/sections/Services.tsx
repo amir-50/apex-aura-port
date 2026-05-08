@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { site } from "@/config/site";
+import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 export function Services() {
   if (!site.services.enabled) return null;

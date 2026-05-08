@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Twitter, Dribbble, Linkedin, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
-import { site } from "@/config/site";
+import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 const ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
   Instagram,
