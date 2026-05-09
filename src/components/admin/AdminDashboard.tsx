@@ -267,7 +267,7 @@ function BrandTab() {
     <div className="space-y-3">
       <Field label="Brand name"><TextInput value={b.name} onChange={(e) => set({ name: e.target.value })}/></Field>
       <Field label="Logo text (used if no image)"><TextInput value={b.logoText} onChange={(e) => set({ logoText: e.target.value })}/></Field>
-      <Field label="Logo image URL (optional)"><TextInput value={b.logoImage ?? ""} onChange={(e) => set({ logoImage: e.target.value || null })}/></Field>
+      <ImageInput label="Logo image" value={b.logoImage} onChange={(v) => set({ logoImage: v })} />
       <Field label="Tagline"><TextInput value={b.tagline} onChange={(e) => set({ tagline: e.target.value })}/></Field>
     </div>
   );
@@ -335,7 +335,7 @@ function AboutTab() {
     <div className="space-y-3">
       <Toggle checked={a.enabled} onChange={(v) => set({ enabled: v })} label="Show About" />
       <Field label="Title"><TextArea rows={2} value={a.title} onChange={(e) => set({ title: e.target.value })}/></Field>
-      <Field label="Image URL"><TextInput value={a.image} onChange={(e) => set({ image: e.target.value })}/></Field>
+      <ImageInput label="Portrait image" value={a.image} onChange={(v) => set({ image: v ?? "" })} />
       <Field label="Body (one paragraph per line)">
         <TextArea rows={4} value={a.body.join("\n")} onChange={(e) => set({ body: e.target.value.split("\n").filter(Boolean) })}/>
       </Field>
