@@ -76,17 +76,41 @@ export function SiteConfigProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     if (typeof document === "undefined") return;
     const t = (site as any).theme;
-    if (!t) return;
-    const root = document.documentElement;
-    if (t.background) root.style.setProperty("--background", t.background);
-    if (t.foreground) root.style.setProperty("--foreground", t.foreground);
-    if (t.primary) {
-      root.style.setProperty("--primary", t.primary);
-      root.style.setProperty("--gold", t.primary);
-      root.style.setProperty("--ring", `${t.primary} / 60%`);
+    if (t) {
+      const root = document.documentElement;
+      if (t.background) root.style.setProperty("--background", t.background);
+      if (t.foreground) root.style.setProperty("--foreground", t.foreground);
+      if (t.primary) {
+        root.style.setProperty("--primary", t.primary);
+        root.style.setProperty("--gold", t.primary);
+        root.style.setProperty("--ring", `${t.primary} / 60%`);
+      }
+      if (t.accent) root.style.setProperty("--accent", t.accent);
+      if (t.radius) root.style.setProperty("--radius", t.radius);
     }
-    if (t.accent) root.style.setProperty("--accent", t.accent);
-    if (t.radius) root.style.setProperty("--radius", t.radius);
+    // Typography
+    const ty = (site as any).typography;
+    if (ty) {
+      const root = document.documentElement;
+      if (ty.displayFont) root.style.setProperty("--font-display", `"${ty.displayFont}", Georgia, serif`);
+      if (ty.bodyFont) root.style.setProperty("--font-sans", `"${ty.bodyFont}", system-ui, sans-serif`);
+      if (ty.baseSize) root.style.fontSize = ty.baseSize;
+      if (ty.letterSpacing) root.style.setProperty("--heading-tracking", ty.letterSpacing);
+      // Inject Google Fonts dynamically (deduped)
+      const fonts = [ty.displayFont, ty.bodyFont].filter(Boolean) as string[];
+      const id = "luxe-dynamic-fonts";
+      const existing = document.getElementById(id);
+      const families = Array.from(new Set(fonts))
+        .map((f) => `family=${encodeURIComponent(f)}:wght@300;400;500;600;700`)
+        .join("&");
+      const href = `https://fonts.googleapis.com/css2?${families}&display=swap`;
+      if (existing) (existing as HTMLLinkElement).href = href;
+      else {
+        const link = document.createElement("link");
+        link.id = id; link.rel = "stylesheet"; link.href = href;
+        document.head.appendChild(link);
+      }
+    }
   }, [site]);
 
   const update = useCallback((patch: DeepPartial<SiteConfig>) => {

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Settings2, X, Eye, EyeOff, RotateCcw, Download, Upload, GripVertical } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Settings2, X, Eye, EyeOff, RotateCcw, Download, Upload, GripVertical, Image as ImageIcon } from "lucide-react";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 /**
@@ -52,7 +52,7 @@ export function AdminDashboard() {
             </header>
 
             <nav className="px-4 pt-4 flex flex-wrap gap-1.5 text-xs">
-              {(["sections","theme","brand","header","hero","about","services","projects","testimonials","journal","contact","footer","data"] as Tab[]).map((t) => (
+              {(["sections","theme","typography","brand","header","hero","about","services","projects","testimonials","journal","contact","footer","data"] as Tab[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
@@ -66,6 +66,7 @@ export function AdminDashboard() {
             <div className="p-4 space-y-4">
               {tab === "sections" && <SectionsTab />}
               {tab === "theme" && <ThemeTab />}
+              {tab === "typography" && <TypographyTab />}
               {tab === "brand" && <BrandTab />}
               {tab === "header" && <HeaderTab />}
               {tab === "hero" && <HeroTab />}
@@ -94,7 +95,9 @@ export function AdminDashboard() {
   );
 }
 
-type Tab = "sections"|"theme"|"brand"|"header"|"hero"|"about"|"services"|"projects"|"testimonials"|"journal"|"contact"|"footer"|"data";
+type Tab = "sections"|"theme"|"typography"|"brand"|"header"|"hero"|"about"|"services"|"projects"|"testimonials"|"journal"|"contact"|"footer"|"data";
+
+const FONT_OPTIONS = ["Fraunces","Playfair Display","Cormorant Garamond","DM Serif Display","Inter","Manrope","Space Grotesk","Plus Jakarta Sans","Syne","Outfit","Bricolage Grotesque","Instrument Serif"];
 
 /* ──────────────────── Reusable form atoms ───────────────────── */
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -120,6 +123,85 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   );
 }
 function Card({ children }: { children: React.ReactNode }) { return <div className="glass-card rounded-xl p-3 space-y-2.5">{children}</div>; }
+
+function ImageInput({ value, onChange, label = "Image" }: { value: string | null | undefined; onChange: (v: string | null) => void; label?: string }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const onFile = (f: File | undefined) => {
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => onChange(String(reader.result));
+    reader.readAsDataURL(f);
+  };
+  return (
+    <div className="space-y-2">
+      <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-2">
+        <div className="h-14 w-14 rounded-lg border border-border bg-background/40 overflow-hidden flex items-center justify-center shrink-0">
+          {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : <ImageIcon size={16} className="text-muted-foreground" />}
+        </div>
+        <div className="flex-1 space-y-1.5">
+          <TextInput placeholder="Image URL" value={value ?? ""} onChange={(e) => onChange(e.target.value || null)} />
+          <div className="flex gap-1.5">
+            <button type="button" onClick={() => fileRef.current?.click()} className="text-[11px] glass px-2.5 py-1.5 rounded-md hover:text-gold transition-colors flex items-center gap-1">
+              <Upload size={11} /> Upload
+            </button>
+            {value && (
+              <button type="button" onClick={() => onChange(null)} className="text-[11px] glass px-2.5 py-1.5 rounded-md hover:text-destructive transition-colors">
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+        <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => onFile(e.target.files?.[0])} />
+      </div>
+    </div>
+  );
+}
+
+function TypographyTab() {
+  const { site, update } = useSiteConfig();
+  const ty = (site as any).typography ?? {};
+  const set = (patch: any) => update({ typography: { ...ty, ...patch } } as any);
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">Pick fonts (auto-loaded from Google Fonts) and tune type scale. Updates apply live.</p>
+      <Field label="Display font (headings)">
+        <select className={inputCls} value={ty.displayFont ?? "Fraunces"} onChange={(e) => set({ displayFont: e.target.value })}>
+          {FONT_OPTIONS.map((f) => <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>)}
+        </select>
+      </Field>
+      <Field label="Body font">
+        <select className={inputCls} value={ty.bodyFont ?? "Inter"} onChange={(e) => set({ bodyFont: e.target.value })}>
+          {FONT_OPTIONS.map((f) => <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>)}
+        </select>
+      </Field>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="Heading weight">
+          <select className={inputCls} value={ty.headingWeight ?? "500"} onChange={(e) => set({ headingWeight: e.target.value })}>
+            {["300","400","500","600","700"].map((w) => <option key={w} value={w}>{w}</option>)}
+          </select>
+        </Field>
+        <Field label="Body weight">
+          <select className={inputCls} value={ty.bodyWeight ?? "400"} onChange={(e) => set({ bodyWeight: e.target.value })}>
+            {["300","400","500","600"].map((w) => <option key={w} value={w}>{w}</option>)}
+          </select>
+        </Field>
+      </div>
+      <Field label="Base font size">
+        <TextInput value={ty.baseSize ?? "16px"} onChange={(e) => set({ baseSize: e.target.value })} placeholder="16px" />
+      </Field>
+      <Field label="Heading letter-spacing">
+        <TextInput value={ty.letterSpacing ?? "-0.02em"} onChange={(e) => set({ letterSpacing: e.target.value })} placeholder="-0.02em" />
+      </Field>
+      <div className="glass-card rounded-xl p-4 mt-4">
+        <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Live preview</div>
+        <div className="font-display text-3xl text-gradient">The quick brown fox</div>
+        <div className="font-display italic text-2xl text-gold-gradient mt-1">jumps over the lazy dog</div>
+        <p className="text-sm text-muted-foreground mt-3">Body copy renders in your selected sans for comfortable reading at every scale.</p>
+      </div>
+    </div>
+  );
+}
 
 /* ──────────────────── Tabs ───────────────────── */
 function SectionsTab() {
@@ -185,7 +267,7 @@ function BrandTab() {
     <div className="space-y-3">
       <Field label="Brand name"><TextInput value={b.name} onChange={(e) => set({ name: e.target.value })}/></Field>
       <Field label="Logo text (used if no image)"><TextInput value={b.logoText} onChange={(e) => set({ logoText: e.target.value })}/></Field>
-      <Field label="Logo image URL (optional)"><TextInput value={b.logoImage ?? ""} onChange={(e) => set({ logoImage: e.target.value || null })}/></Field>
+      <ImageInput label="Logo image" value={b.logoImage} onChange={(v) => set({ logoImage: v })} />
       <Field label="Tagline"><TextInput value={b.tagline} onChange={(e) => set({ tagline: e.target.value })}/></Field>
     </div>
   );
@@ -241,6 +323,12 @@ function HeroTab() {
         <TextInput placeholder="Label" value={h.secondaryCta.label} onChange={(e) => set({ secondaryCta: { ...h.secondaryCta, label: e.target.value } })}/>
         <TextInput placeholder="Href" value={h.secondaryCta.href} onChange={(e) => set({ secondaryCta: { ...h.secondaryCta, href: e.target.value } })}/>
       </Card>
+      <Toggle checked={(h as any).showOrb !== false} onChange={(v) => set({ showOrb: v })} label="Show 3D scene" />
+      <Field label="Availability badge"><TextInput value={(h as any).availability ?? ""} onChange={(e) => set({ availability: e.target.value })}/></Field>
+      <ImageInput label="Background image (optional)" value={(h as any).backgroundImage} onChange={(v) => set({ backgroundImage: v })} />
+      <Field label="Marquee items (comma-separated)">
+        <TextInput value={((h as any).marquee ?? []).join(", ")} onChange={(e) => set({ marquee: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}/>
+      </Field>
     </div>
   );
 }
@@ -253,7 +341,7 @@ function AboutTab() {
     <div className="space-y-3">
       <Toggle checked={a.enabled} onChange={(v) => set({ enabled: v })} label="Show About" />
       <Field label="Title"><TextArea rows={2} value={a.title} onChange={(e) => set({ title: e.target.value })}/></Field>
-      <Field label="Image URL"><TextInput value={a.image} onChange={(e) => set({ image: e.target.value })}/></Field>
+      <ImageInput label="Portrait image" value={a.image} onChange={(v) => set({ image: v ?? "" })} />
       <Field label="Body (one paragraph per line)">
         <TextArea rows={4} value={a.body.join("\n")} onChange={(e) => set({ body: e.target.value.split("\n").filter(Boolean) })}/>
       </Field>
@@ -325,7 +413,7 @@ function ProjectsTab() {
               <TextInput placeholder="Category" value={item.category} onChange={(e) => on({ ...item, category: e.target.value })}/>
               <TextInput placeholder="Year" value={item.year} onChange={(e) => on({ ...item, year: e.target.value })}/>
             </div>
-            <TextInput placeholder="Cover image URL" value={item.cover} onChange={(e) => on({ ...item, cover: e.target.value })}/>
+            <ImageInput label="Cover image" value={item.cover} onChange={(v) => on({ ...item, cover: v ?? "" })}/>
             <TextInput placeholder="Tags (comma-separated)" value={(item.tags ?? []).join(", ")} onChange={(e) => on({ ...item, tags: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean) })}/>
           </>
         )}
@@ -380,7 +468,7 @@ function JournalTab() {
               <TextInput placeholder="Date" value={item.date} onChange={(e) => on({ ...item, date: e.target.value })}/>
               <TextInput placeholder="Href" value={item.href} onChange={(e) => on({ ...item, href: e.target.value })}/>
             </div>
-            <TextInput placeholder="Cover URL" value={item.cover} onChange={(e) => on({ ...item, cover: e.target.value })}/>
+            <ImageInput label="Cover image" value={item.cover} onChange={(v) => on({ ...item, cover: v ?? "" })}/>
           </>
         )}
       />

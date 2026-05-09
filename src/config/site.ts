@@ -36,6 +36,16 @@ export const site = {
     radius: "0.875rem",
   },
 
+  /* ── Typography (live-editable in admin) ───────────────── */
+  typography: {
+    displayFont: "Fraunces",   // headings
+    bodyFont: "Inter",          // body
+    headingWeight: "500",
+    bodyWeight: "400",
+    baseSize: "16px",           // root font-size
+    letterSpacing: "-0.02em",   // headings
+  },
+
   /* ── Section visibility & order (admin-controlled) ─────── */
   sections: {
     order: ["hero", "about", "services", "projects", "testimonials", "journal", "contact"] as Array<
@@ -75,6 +85,10 @@ export const site = {
       "We partner with visionary brands to craft immersive websites, identity systems and interactive 3D experiences that feel inevitable.",
     primaryCta: { label: "View Selected Work", href: "/work" },
     secondaryCta: { label: "Book a Call", href: "/contact" },
+    availability: "Available for Q3 2026",
+    backgroundImage: null as string | null,
+    showOrb: true,
+    marquee: ["Awwwards", "FWA", "CSS Design", "Webby", "Site Inspire", "Brand New"],
   },
 
   /* ── About ─────────────────────────────────────────────── */
