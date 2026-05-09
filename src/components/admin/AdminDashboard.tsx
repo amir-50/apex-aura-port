@@ -97,7 +97,7 @@ export function AdminDashboard() {
   );
 }
 
-type Tab = "sections"|"theme"|"typography"|"brand"|"header"|"hero"|"about"|"services"|"projects"|"testimonials"|"journal"|"contact"|"footer"|"data";
+type Tab = "sections"|"theme"|"typography"|"motion"|"seo"|"brand"|"header"|"hero"|"about"|"services"|"projects"|"testimonials"|"journal"|"contact"|"footer"|"data";
 
 const FONT_OPTIONS = ["Fraunces","Playfair Display","Cormorant Garamond","DM Serif Display","Inter","Manrope","Space Grotesk","Plus Jakarta Sans","Syne","Outfit","Bricolage Grotesque","Instrument Serif"];
 
