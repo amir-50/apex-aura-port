@@ -36,6 +36,16 @@ export const site = {
     radius: "0.875rem",
   },
 
+  /* ── Typography (live-editable in admin) ───────────────── */
+  typography: {
+    displayFont: "Fraunces",   // headings
+    bodyFont: "Inter",          // body
+    headingWeight: "500",
+    bodyWeight: "400",
+    baseSize: "16px",           // root font-size
+    letterSpacing: "-0.02em",   // headings
+  },
+
   /* ── Section visibility & order (admin-controlled) ─────── */
   sections: {
     order: ["hero", "about", "services", "projects", "testimonials", "journal", "contact"] as Array<
