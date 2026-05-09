@@ -132,6 +132,7 @@ function RootComponent() {
           </main>
           <Footer />
           <AdminDashboard />
+          <SeoHead />
         </div>
       </SiteConfigProvider>
     </QueryClientProvider>
