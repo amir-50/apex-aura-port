@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Settings2, X, Eye, EyeOff, RotateCcw, Download, Upload, GripVertical } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Settings2, X, Eye, EyeOff, RotateCcw, Download, Upload, GripVertical, Image as ImageIcon } from "lucide-react";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 /**
