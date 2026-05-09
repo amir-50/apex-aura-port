@@ -323,6 +323,12 @@ function HeroTab() {
         <TextInput placeholder="Label" value={h.secondaryCta.label} onChange={(e) => set({ secondaryCta: { ...h.secondaryCta, label: e.target.value } })}/>
         <TextInput placeholder="Href" value={h.secondaryCta.href} onChange={(e) => set({ secondaryCta: { ...h.secondaryCta, href: e.target.value } })}/>
       </Card>
+      <Toggle checked={(h as any).showOrb !== false} onChange={(v) => set({ showOrb: v })} label="Show 3D scene" />
+      <Field label="Availability badge"><TextInput value={(h as any).availability ?? ""} onChange={(e) => set({ availability: e.target.value })}/></Field>
+      <ImageInput label="Background image (optional)" value={(h as any).backgroundImage} onChange={(v) => set({ backgroundImage: v })} />
+      <Field label="Marquee items (comma-separated)">
+        <TextInput value={((h as any).marquee ?? []).join(", ")} onChange={(e) => set({ marquee: e.target.value.split(",").map((s) => s.trim()).filter(Boolean) })}/>
+      </Field>
     </div>
   );
 }
@@ -407,7 +413,7 @@ function ProjectsTab() {
               <TextInput placeholder="Category" value={item.category} onChange={(e) => on({ ...item, category: e.target.value })}/>
               <TextInput placeholder="Year" value={item.year} onChange={(e) => on({ ...item, year: e.target.value })}/>
             </div>
-            <TextInput placeholder="Cover image URL" value={item.cover} onChange={(e) => on({ ...item, cover: e.target.value })}/>
+            <ImageInput label="Cover image" value={item.cover} onChange={(v) => on({ ...item, cover: v ?? "" })}/>
             <TextInput placeholder="Tags (comma-separated)" value={(item.tags ?? []).join(", ")} onChange={(e) => on({ ...item, tags: e.target.value.split(",").map((s: string) => s.trim()).filter(Boolean) })}/>
           </>
         )}
@@ -462,7 +468,7 @@ function JournalTab() {
               <TextInput placeholder="Date" value={item.date} onChange={(e) => on({ ...item, date: e.target.value })}/>
               <TextInput placeholder="Href" value={item.href} onChange={(e) => on({ ...item, href: e.target.value })}/>
             </div>
-            <TextInput placeholder="Cover URL" value={item.cover} onChange={(e) => on({ ...item, cover: e.target.value })}/>
+            <ImageInput label="Cover image" value={item.cover} onChange={(v) => on({ ...item, cover: v ?? "" })}/>
           </>
         )}
       />
