@@ -67,6 +67,8 @@ export function AdminDashboard() {
               {tab === "sections" && <SectionsTab />}
               {tab === "theme" && <ThemeTab />}
               {tab === "typography" && <TypographyTab />}
+              {tab === "motion" && <MotionTab />}
+              {tab === "seo" && <SeoTab />}
               {tab === "brand" && <BrandTab />}
               {tab === "header" && <HeaderTab />}
               {tab === "hero" && <HeroTab />}
