@@ -2,6 +2,7 @@ import { Suspense, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, MeshTransmissionMaterial, Environment, ContactShadows } from "@react-three/drei";
 import type { Mesh, Group } from "three";
+import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 function GoldOrb() {
   const ref = useRef<Mesh>(null);
