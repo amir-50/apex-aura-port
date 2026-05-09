@@ -206,27 +206,99 @@ function TypographyTab() {
 }
 
 /* ──────────────────── Tabs ───────────────────── */
+function MotionTab() {
+  const { site, update } = useSiteConfig();
+  const m = (site as any).motion ?? { reduced: false };
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">
+        When enabled, all CSS transitions, framer-motion animations and the 3D scene freeze.
+        Useful for accessibility (matches the OS <code>prefers-reduced-motion</code> setting).
+      </p>
+      <Toggle
+        checked={!!m.reduced}
+        onChange={(v) => update({ motion: { ...m, reduced: v } } as any)}
+        label="Reduced motion (freeze 3D + animations)"
+      />
+    </div>
+  );
+}
+
+function SeoTab() {
+  const { site, update } = useSiteConfig();
+  const seo = (site as any).seo ?? {};
+  const pages: Record<string, any> = seo.pages ?? {};
+  const setPage = (path: string, patch: any) =>
+    update({ seo: { ...seo, pages: { ...pages, [path]: { ...(pages[path] ?? {}), ...patch } } } } as any);
+  const setDefault = (patch: any) => update({ seo: { ...seo, ...patch } } as any);
+
+  return (
+    <div className="space-y-3">
+      <Card>
+        <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Site defaults</div>
+        <Field label="Default title"><TextInput value={seo.title ?? ""} onChange={(e) => setDefault({ title: e.target.value })}/></Field>
+        <Field label="Default description"><TextArea rows={2} value={seo.description ?? ""} onChange={(e) => setDefault({ description: e.target.value })}/></Field>
+        <Field label="Site URL"><TextInput value={seo.url ?? ""} onChange={(e) => setDefault({ url: e.target.value })}/></Field>
+        <Field label="Twitter handle"><TextInput value={seo.twitter ?? ""} onChange={(e) => setDefault({ twitter: e.target.value })}/></Field>
+        <ImageInput label="Default OpenGraph image" value={seo.ogImage} onChange={(v) => setDefault({ ogImage: v ?? "" })} />
+      </Card>
+
+      <p className="text-xs text-muted-foreground pt-2">Per-page overrides — applied automatically on route change.</p>
+      {Object.keys(pages).map((path) => {
+        const p = pages[path] ?? {};
+        return (
+          <Card key={path}>
+            <div className="flex items-center justify-between">
+              <code className="text-xs text-gold">{path}</code>
+            </div>
+            <Field label="Meta title"><TextInput value={p.title ?? ""} onChange={(e) => setPage(path, { title: e.target.value })}/></Field>
+            <Field label="Meta description"><TextArea rows={2} value={p.description ?? ""} onChange={(e) => setPage(path, { description: e.target.value })}/></Field>
+            <ImageInput label="OpenGraph image" value={p.ogImage} onChange={(v) => setPage(path, { ogImage: v ?? "" })}/>
+            <Field label="Canonical URL"><TextInput placeholder="https://yoursite.com/page" value={p.canonical ?? ""} onChange={(e) => setPage(path, { canonical: e.target.value })}/></Field>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ──────────────────── Tabs ───────────────────── */
 function SectionsTab() {
   const { site, update } = useSiteConfig();
   const order = site.sections.order;
-  const move = (i: number, dir: -1 | 1) => {
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+
+  const reorder = (from: number, to: number) => {
+    if (from === to || to < 0 || to >= order.length) return;
     const next = [...order];
-    const j = i + dir;
-    if (j < 0 || j >= next.length) return;
-    [next[i], next[j]] = [next[j], next[i]];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
     update({ sections: { order: next } });
   };
+
   return (
     <div className="space-y-2">
-      <p className="text-xs text-muted-foreground">Show, hide and reorder homepage sections.</p>
+      <p className="text-xs text-muted-foreground">Drag <GripVertical size={11} className="inline -mt-0.5"/> to reorder. Toggle the eye to show/hide. The homepage rebuilds automatically from <code>site.sections.order</code>.</p>
       {order.map((key, i) => {
         const sec = (site as any)[key];
         const enabled = sec?.enabled ?? true;
+        const isDragging = dragIdx === i;
         return (
-          <div key={key} className="flex items-center gap-2">
+          <div
+            key={key}
+            draggable
+            onDragStart={() => setDragIdx(i)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => { e.preventDefault(); if (dragIdx !== null) reorder(dragIdx, i); setDragIdx(null); }}
+            onDragEnd={() => setDragIdx(null)}
+            className={`flex items-center gap-2 rounded-lg transition-opacity ${isDragging ? "opacity-40" : ""}`}
+          >
+            <button className="cursor-grab active:cursor-grabbing p-1.5 text-muted-foreground hover:text-gold" title="Drag to reorder">
+              <GripVertical size={14}/>
+            </button>
             <div className="flex flex-col">
-              <button onClick={() => move(i, -1)} className="text-muted-foreground hover:text-foreground text-xs">▲</button>
-              <button onClick={() => move(i, 1)} className="text-muted-foreground hover:text-foreground text-xs">▼</button>
+              <button onClick={() => reorder(i, i - 1)} className="text-muted-foreground hover:text-foreground text-[10px] leading-none">▲</button>
+              <button onClick={() => reorder(i, i + 1)} className="text-muted-foreground hover:text-foreground text-[10px] leading-none mt-0.5">▼</button>
             </div>
             <div className="flex-1">
               <Toggle
