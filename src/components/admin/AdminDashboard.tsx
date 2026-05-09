@@ -124,6 +124,85 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 }
 function Card({ children }: { children: React.ReactNode }) { return <div className="glass-card rounded-xl p-3 space-y-2.5">{children}</div>; }
 
+function ImageInput({ value, onChange, label = "Image" }: { value: string | null | undefined; onChange: (v: string | null) => void; label?: string }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const onFile = (f: File | undefined) => {
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => onChange(String(reader.result));
+    reader.readAsDataURL(f);
+  };
+  return (
+    <div className="space-y-2">
+      <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{label}</span>
+      <div className="flex items-center gap-2">
+        <div className="h-14 w-14 rounded-lg border border-border bg-background/40 overflow-hidden flex items-center justify-center shrink-0">
+          {value ? <img src={value} alt="" className="h-full w-full object-cover" /> : <ImageIcon size={16} className="text-muted-foreground" />}
+        </div>
+        <div className="flex-1 space-y-1.5">
+          <TextInput placeholder="Image URL" value={value ?? ""} onChange={(e) => onChange(e.target.value || null)} />
+          <div className="flex gap-1.5">
+            <button type="button" onClick={() => fileRef.current?.click()} className="text-[11px] glass px-2.5 py-1.5 rounded-md hover:text-gold transition-colors flex items-center gap-1">
+              <Upload size={11} /> Upload
+            </button>
+            {value && (
+              <button type="button" onClick={() => onChange(null)} className="text-[11px] glass px-2.5 py-1.5 rounded-md hover:text-destructive transition-colors">
+                Remove
+              </button>
+            )}
+          </div>
+        </div>
+        <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => onFile(e.target.files?.[0])} />
+      </div>
+    </div>
+  );
+}
+
+function TypographyTab() {
+  const { site, update } = useSiteConfig();
+  const ty = (site as any).typography ?? {};
+  const set = (patch: any) => update({ typography: { ...ty, ...patch } } as any);
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">Pick fonts (auto-loaded from Google Fonts) and tune type scale. Updates apply live.</p>
+      <Field label="Display font (headings)">
+        <select className={inputCls} value={ty.displayFont ?? "Fraunces"} onChange={(e) => set({ displayFont: e.target.value })}>
+          {FONT_OPTIONS.map((f) => <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>)}
+        </select>
+      </Field>
+      <Field label="Body font">
+        <select className={inputCls} value={ty.bodyFont ?? "Inter"} onChange={(e) => set({ bodyFont: e.target.value })}>
+          {FONT_OPTIONS.map((f) => <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>)}
+        </select>
+      </Field>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="Heading weight">
+          <select className={inputCls} value={ty.headingWeight ?? "500"} onChange={(e) => set({ headingWeight: e.target.value })}>
+            {["300","400","500","600","700"].map((w) => <option key={w} value={w}>{w}</option>)}
+          </select>
+        </Field>
+        <Field label="Body weight">
+          <select className={inputCls} value={ty.bodyWeight ?? "400"} onChange={(e) => set({ bodyWeight: e.target.value })}>
+            {["300","400","500","600"].map((w) => <option key={w} value={w}>{w}</option>)}
+          </select>
+        </Field>
+      </div>
+      <Field label="Base font size">
+        <TextInput value={ty.baseSize ?? "16px"} onChange={(e) => set({ baseSize: e.target.value })} placeholder="16px" />
+      </Field>
+      <Field label="Heading letter-spacing">
+        <TextInput value={ty.letterSpacing ?? "-0.02em"} onChange={(e) => set({ letterSpacing: e.target.value })} placeholder="-0.02em" />
+      </Field>
+      <div className="glass-card rounded-xl p-4 mt-4">
+        <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mb-2">Live preview</div>
+        <div className="font-display text-3xl text-gradient">The quick brown fox</div>
+        <div className="font-display italic text-2xl text-gold-gradient mt-1">jumps over the lazy dog</div>
+        <p className="text-sm text-muted-foreground mt-3">Body copy renders in your selected sans for comfortable reading at every scale.</p>
+      </div>
+    </div>
+  );
+}
+
 /* ──────────────────── Tabs ───────────────────── */
 function SectionsTab() {
   const { site, update } = useSiteConfig();
