@@ -53,13 +53,27 @@ export const site = {
     >,
   },
 
-  /* ── SEO defaults (overridable per route) ──────────────── */
+  /* ── Motion preferences (admin-controlled) ─────────────── */
+  motion: {
+    reduced: false, // when true, disables framer-motion + freezes 3D scene
+  },
+
+  /* ── SEO defaults + per-page overrides (admin-controlled)  */
   seo: {
     title: "LUXE — Premium Creative Portfolio",
     description:
       "An award-winning creative studio crafting refined digital experiences, brand systems and immersive 3D interfaces.",
     url: "https://luxe.example.com",
     twitter: "@luxe",
+    ogImage: "" as string,
+    pages: {
+      "/":         { title: "LUXE — Premium Creative Portfolio", description: "An award-winning creative studio crafting refined digital experiences, brand systems and immersive 3D interfaces.", ogImage: "", canonical: "" },
+      "/work":     { title: "Work — LUXE Studio",     description: "Selected projects across brand, web, 3D and motion.",           ogImage: "", canonical: "" },
+      "/about":    { title: "About — LUXE Studio",    description: "A studio of one with the precision of ten.",                    ogImage: "", canonical: "" },
+      "/services": { title: "Services — LUXE Studio", description: "Crafted offerings across brand, web, 3D and art direction.",    ogImage: "", canonical: "" },
+      "/journal":  { title: "Journal — LUXE Studio",  description: "Field notes on craft, process and the slow web.",               ogImage: "", canonical: "" },
+      "/contact":  { title: "Contact — LUXE Studio",  description: "Currently accepting two new engagements per quarter.",          ogImage: "", canonical: "" },
+    } as Record<string, { title: string; description: string; ogImage: string; canonical: string }>,
   },
 
   /* ── Header / Navigation ───────────────────────────────── */

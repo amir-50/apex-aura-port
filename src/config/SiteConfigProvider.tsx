@@ -111,6 +111,21 @@ export function SiteConfigProvider({ children }: { children: React.ReactNode }) 
         document.head.appendChild(link);
       }
     }
+    // Reduced motion
+    const reduced = (site as any).motion?.reduced === true;
+    document.documentElement.dataset.reducedMotion = reduced ? "true" : "false";
+    const styleId = "luxe-reduced-motion";
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
+    if (reduced) {
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        document.head.appendChild(styleEl);
+      }
+      styleEl.textContent = `*,*::before,*::after{animation-duration:.001ms !important;animation-delay:0ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}`;
+    } else if (styleEl) {
+      styleEl.remove();
+    }
   }, [site]);
 
   const update = useCallback((patch: DeepPartial<SiteConfig>) => {

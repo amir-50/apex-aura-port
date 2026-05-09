@@ -2,6 +2,7 @@ import { Suspense, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, MeshTransmissionMaterial, Environment, ContactShadows } from "@react-three/drei";
 import type { Mesh, Group } from "three";
+import { useSiteConfig } from "@/config/SiteConfigProvider";
 
 function GoldOrb() {
   const ref = useRef<Mesh>(null);
@@ -75,11 +76,14 @@ function FloatingShard() {
 }
 
 export function Scene3D() {
+  const { site } = useSiteConfig();
+  const reduced = (site as any).motion?.reduced === true;
   return (
     <Canvas
       camera={{ position: [0, 0, 5], fov: 42 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
+      frameloop={reduced ? "demand" : "always"}
     >
       <ambientLight intensity={0.35} />
       <directionalLight position={[5, 5, 5]} intensity={1.4} color="#fff5dc" />

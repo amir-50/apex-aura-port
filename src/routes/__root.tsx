@@ -13,6 +13,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SiteConfigProvider } from "@/config/SiteConfigProvider";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
+import { SeoHead } from "@/components/seo/SeoHead";
 
 function NotFoundComponent() {
   return (
@@ -131,6 +132,7 @@ function RootComponent() {
           </main>
           <Footer />
           <AdminDashboard />
+          <SeoHead />
         </div>
       </SiteConfigProvider>
     </QueryClientProvider>
