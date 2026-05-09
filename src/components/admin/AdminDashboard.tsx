@@ -52,7 +52,7 @@ export function AdminDashboard() {
             </header>
 
             <nav className="px-4 pt-4 flex flex-wrap gap-1.5 text-xs">
-              {(["sections","theme","typography","brand","header","hero","about","services","projects","testimonials","journal","contact","footer","data"] as Tab[]).map((t) => (
+              {(["sections","theme","typography","motion","seo","brand","header","hero","about","services","projects","testimonials","journal","contact","footer","data"] as Tab[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
