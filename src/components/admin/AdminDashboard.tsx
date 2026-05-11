@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Settings2, X, Eye, EyeOff, RotateCcw, Download, Upload, GripVertical, Image as ImageIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Settings2, X, Eye, EyeOff, RotateCcw, Download, Upload, GripVertical, Image as ImageIcon, Lock } from "lucide-react";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadSiteAsset } from "@/lib/uploadAsset";
+import { toast } from "sonner";
 
 /**
  * In-browser admin dashboard. Floating panel at bottom-right.
@@ -9,10 +13,10 @@ import { useSiteConfig } from "@/config/SiteConfigProvider";
  */
 export function AdminDashboard() {
   const { site, update, reset, exportJson, importJson } = useSiteConfig();
+  const { user, isAdmin, loading } = useAuth();
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("sections");
 
-  // Open with ?admin=1 or Ctrl/Cmd+Shift+A
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "a") {
@@ -25,6 +29,27 @@ export function AdminDashboard() {
     }
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // Hide the floating button entirely from non-admins
+  if (loading) return null;
+  if (!isAdmin) {
+    if (!open) return null;
+    return (
+      <div className="fixed inset-0 z-[70] flex">
+        <div className="flex-1 bg-background/70 backdrop-blur-sm" onClick={() => setOpen(false)} />
+        <aside className="w-full sm:w-[440px] h-full bg-card border-l border-border p-8 flex flex-col items-center justify-center text-center">
+          <Lock className="text-gold" size={36} />
+          <h3 className="font-display text-xl mt-4">Admin sign-in required</h3>
+          <p className="text-sm text-muted-foreground mt-2 max-w-xs">
+            {user ? "Your account doesn't have admin access yet. Visit /admin to claim it." : "Sign in to edit this site."}
+          </p>
+          <Link to={user ? "/admin" : "/login"} className="btn-luxe mt-6" onClick={() => setOpen(false)}>
+            {user ? "Go to admin" : "Sign in"}
+          </Link>
+        </aside>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -128,11 +153,18 @@ function Card({ children }: { children: React.ReactNode }) { return <div classNa
 
 function ImageInput({ value, onChange, label = "Image" }: { value: string | null | undefined; onChange: (v: string | null) => void; label?: string }) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const onFile = (f: File | undefined) => {
+  const [busy, setBusy] = useState(false);
+  const onFile = async (f: File | undefined) => {
     if (!f) return;
-    const reader = new FileReader();
-    reader.onload = () => onChange(String(reader.result));
-    reader.readAsDataURL(f);
+    if (f.size > 8 * 1024 * 1024) { toast.error("Max 8MB."); return; }
+    setBusy(true);
+    try {
+      const url = await uploadSiteAsset(f);
+      onChange(url);
+      toast.success("Image uploaded.");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Upload failed");
+    } finally { setBusy(false); }
   };
   return (
     <div className="space-y-2">

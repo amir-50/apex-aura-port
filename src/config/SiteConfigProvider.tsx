@@ -1,17 +1,15 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { site as defaultSite, type SiteConfig } from "@/config/site";
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Live site config layer.
  *
- * - Loads defaults from src/config/site.ts (your "Laravel-ready" schema)
- * - Persists admin overrides to localStorage under STORAGE_KEY
- * - Exposes update/reset/export/import for the admin dashboard
- *
- * To swap in a real Laravel/WordPress backend later:
- *   1. Replace `loadOverrides()` with `await fetch('/api/site')`
- *   2. Replace `persist()` with `await fetch('/api/site', { method: 'PUT', body })`
- * The shape never changes — every section component already consumes `useSiteConfig()`.
+ * - Defaults from src/config/site.ts
+ * - Live overrides loaded from Cloud `site_config` row (singleton id=1)
+ * - Realtime sync across devices/visitors
+ * - Admins persist via UPDATE; RLS blocks non-admins server-side
+ * - Falls back to localStorage when offline / not signed in
  */
 
 const STORAGE_KEY = "luxe.site.config.v1";
@@ -34,50 +32,62 @@ function deepMerge<T>(base: T, override: any): T {
   if (Array.isArray(override)) return override as T;
   if (typeof base !== "object" || typeof override !== "object") return override as T;
   const out: any = { ...(base as any) };
-  for (const k of Object.keys(override)) {
-    out[k] = deepMerge((base as any)?.[k], override[k]);
-  }
+  for (const k of Object.keys(override)) out[k] = deepMerge((base as any)?.[k], override[k]);
   return out;
 }
 
-function loadOverrides(): DeepPartial<SiteConfig> {
+function loadLocal(): DeepPartial<SiteConfig> {
   if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
+  try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; }
 }
-
-function persist(overrides: DeepPartial<SiteConfig>) {
+function saveLocal(o: DeepPartial<SiteConfig>) {
   if (typeof window === "undefined") return;
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides)); } catch {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(o)); } catch {}
 }
 
 export function SiteConfigProvider({ children }: { children: React.ReactNode }) {
   const [overrides, setOverrides] = useState<DeepPartial<SiteConfig>>({});
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Hydrate after mount (avoid SSR mismatch)
-  useEffect(() => { setOverrides(loadOverrides()); }, []);
-
-  // Cross-tab sync
+  // Hydrate: try Cloud first, fall back to local cache
   useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) setOverrides(loadOverrides());
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    let cancelled = false;
+    (async () => {
+      const local = loadLocal();
+      if (!cancelled && Object.keys(local).length) setOverrides(local);
+      const { data } = await supabase.from("site_config").select("data").eq("id", 1).maybeSingle();
+      if (cancelled) return;
+      if (data?.data && typeof data.data === "object") {
+        setOverrides(data.data as DeepPartial<SiteConfig>);
+        saveLocal(data.data as DeepPartial<SiteConfig>);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Realtime: live sync across all visitors
+  useEffect(() => {
+    const channel = supabase
+      .channel("site_config_changes")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "site_config" }, (payload: any) => {
+        const next = payload.new?.data;
+        if (next && typeof next === "object") {
+          setOverrides(next);
+          saveLocal(next);
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const site = useMemo(() => deepMerge(defaultSite, overrides), [overrides]);
 
-  // Apply theme tokens live
+  // Apply CSS tokens / fonts / reduced motion live
   useEffect(() => {
     if (typeof document === "undefined") return;
     const t = (site as any).theme;
+    const root = document.documentElement;
     if (t) {
-      const root = document.documentElement;
       if (t.background) root.style.setProperty("--background", t.background);
       if (t.foreground) root.style.setProperty("--foreground", t.foreground);
       if (t.primary) {
@@ -88,72 +98,54 @@ export function SiteConfigProvider({ children }: { children: React.ReactNode }) 
       if (t.accent) root.style.setProperty("--accent", t.accent);
       if (t.radius) root.style.setProperty("--radius", t.radius);
     }
-    // Typography
     const ty = (site as any).typography;
     if (ty) {
-      const root = document.documentElement;
       if (ty.displayFont) root.style.setProperty("--font-display", `"${ty.displayFont}", Georgia, serif`);
       if (ty.bodyFont) root.style.setProperty("--font-sans", `"${ty.bodyFont}", system-ui, sans-serif`);
       if (ty.baseSize) root.style.fontSize = ty.baseSize;
       if (ty.letterSpacing) root.style.setProperty("--heading-tracking", ty.letterSpacing);
-      // Inject Google Fonts dynamically (deduped)
       const fonts = [ty.displayFont, ty.bodyFont].filter(Boolean) as string[];
       const id = "luxe-dynamic-fonts";
-      const existing = document.getElementById(id);
       const families = Array.from(new Set(fonts))
-        .map((f) => `family=${encodeURIComponent(f)}:wght@300;400;500;600;700`)
-        .join("&");
+        .map((f) => `family=${encodeURIComponent(f)}:wght@300;400;500;600;700`).join("&");
       const href = `https://fonts.googleapis.com/css2?${families}&display=swap`;
+      const existing = document.getElementById(id);
       if (existing) (existing as HTMLLinkElement).href = href;
-      else {
-        const link = document.createElement("link");
-        link.id = id; link.rel = "stylesheet"; link.href = href;
-        document.head.appendChild(link);
-      }
+      else { const link = document.createElement("link"); link.id = id; link.rel = "stylesheet"; link.href = href; document.head.appendChild(link); }
     }
-    // Reduced motion
     const reduced = (site as any).motion?.reduced === true;
-    document.documentElement.dataset.reducedMotion = reduced ? "true" : "false";
+    root.dataset.reducedMotion = reduced ? "true" : "false";
     const styleId = "luxe-reduced-motion";
     let styleEl = document.getElementById(styleId) as HTMLStyleElement | null;
     if (reduced) {
-      if (!styleEl) {
-        styleEl = document.createElement("style");
-        styleEl.id = styleId;
-        document.head.appendChild(styleEl);
-      }
+      if (!styleEl) { styleEl = document.createElement("style"); styleEl.id = styleId; document.head.appendChild(styleEl); }
       styleEl.textContent = `*,*::before,*::after{animation-duration:.001ms !important;animation-delay:0ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}`;
-    } else if (styleEl) {
-      styleEl.remove();
-    }
+    } else if (styleEl) styleEl.remove();
   }, [site]);
 
-  const update = useCallback((patch: DeepPartial<SiteConfig>) => {
-    setOverrides((prev) => {
-      const next = deepMerge(prev, patch);
-      persist(next);
-      return next;
-    });
+  // Persist (debounced) — to Cloud if admin, always to local cache
+  const persist = useCallback((next: DeepPartial<SiteConfig>) => {
+    saveLocal(next);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      const { error } = await supabase.from("site_config").update({ data: next as any }).eq("id", 1);
+      if (error && !/permission|policy|denied/i.test(error.message)) console.warn("site_config save:", error.message);
+    }, 400);
   }, []);
+
+  const update = useCallback((patch: DeepPartial<SiteConfig>) => {
+    setOverrides((prev) => { const next = deepMerge(prev, patch); persist(next); return next; });
+  }, [persist]);
 
   const setSection = useCallback(<K extends keyof SiteConfig>(key: K, value: SiteConfig[K]) => {
     update({ [key]: value } as any);
   }, [update]);
 
-  const reset = useCallback(() => {
-    setOverrides({});
-    persist({});
-  }, []);
-
+  const reset = useCallback(() => { setOverrides({}); persist({}); }, [persist]);
   const exportJson = useCallback(() => JSON.stringify(site, null, 2), [site]);
   const importJson = useCallback((json: string) => {
-    try {
-      const parsed = JSON.parse(json);
-      setOverrides(parsed);
-      persist(parsed);
-      return true;
-    } catch { return false; }
-  }, []);
+    try { const parsed = JSON.parse(json); setOverrides(parsed); persist(parsed); return true; } catch { return false; }
+  }, [persist]);
 
   return (
     <SiteConfigContext.Provider value={{ site, update, setSection, reset, exportJson, importJson }}>

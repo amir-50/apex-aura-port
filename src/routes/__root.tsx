@@ -14,6 +14,8 @@ import { Footer } from "@/components/layout/Footer";
 import { SiteConfigProvider } from "@/config/SiteConfigProvider";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { SeoHead } from "@/components/seo/SeoHead";
+import { AuthProvider } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -124,17 +126,20 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SiteConfigProvider>
-        <div className="dark min-h-screen flex flex-col">
-          <Header />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          <Footer />
-          <AdminDashboard />
-          <SeoHead />
-        </div>
-      </SiteConfigProvider>
+      <AuthProvider>
+        <SiteConfigProvider>
+          <div className="dark min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            <Footer />
+            <AdminDashboard />
+            <SeoHead />
+            <Toaster />
+          </div>
+        </SiteConfigProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
