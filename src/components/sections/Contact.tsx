@@ -1,13 +1,23 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Mail, Phone, MapPin, ArrowRight } from "lucide-react";
+import { z } from "zod";
 import { useSiteConfig } from "@/config/SiteConfigProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1).max(100),
+  email: z.string().trim().email().max(255),
+  message: z.string().trim().min(1).max(2000),
+});
 
 export function Contact() {
   const { site } = useSiteConfig();
   if (!site.contact.enabled) return null;
   const { contact } = site;
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
   return (
@@ -42,7 +52,16 @@ export function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.7 }}
-            onSubmit={(e) => { e.preventDefault(); setSent(true); }}
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const parsed = contactSchema.safeParse(form);
+              if (!parsed.success) { toast.error("Please complete all fields."); return; }
+              setBusy(true);
+              const { error } = await supabase.from("contact_submissions").insert(parsed.data);
+              setBusy(false);
+              if (error) { toast.error(error.message); return; }
+              setSent(true); toast.success("Message sent.");
+            }}
             className="lg:col-span-7 glass-card rounded-3xl p-8 md:p-10 space-y-5"
           >
             <Field label="Name">
@@ -55,8 +74,8 @@ export function Contact() {
               <textarea required rows={5} value={form.message} onChange={(e) => setForm({...form, message: e.target.value})} className="input resize-none" />
             </Field>
 
-            <button className="btn-luxe w-full !py-4">
-              {sent ? "Message sent ✦" : <>Send Message <ArrowRight size={16} /></>}
+            <button disabled={busy || sent} className="btn-luxe w-full !py-4">
+              {sent ? "Message sent ✦" : busy ? "…" : <>Send Message <ArrowRight size={16} /></>}
             </button>
           </motion.form>
         </div>
