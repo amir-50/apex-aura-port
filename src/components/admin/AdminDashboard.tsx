@@ -5,6 +5,7 @@ import { useSiteConfig } from "@/config/SiteConfigProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadSiteAsset } from "@/lib/uploadAsset";
 import { toast } from "sonner";
+import { OrdersTab, PackagesTab, PaymentMethodsTab, EmailsTab, UsersTab } from "./AdminPanels";
 
 /**
  * In-browser admin dashboard. Floating panel at bottom-right.
@@ -41,10 +42,10 @@ export function AdminDashboard() {
           <Lock className="text-gold" size={36} />
           <h3 className="font-display text-xl mt-4">Admin sign-in required</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-xs">
-            {user ? "Your account doesn't have admin access yet. Visit /admin to claim it." : "Sign in to edit this site."}
+            {user ? "Your account doesn't have admin access." : "Sign in to edit this site."}
           </p>
-          <Link to={user ? "/admin" : "/login"} className="btn-luxe mt-6" onClick={() => setOpen(false)}>
-            {user ? "Go to admin" : "Sign in"}
+          <Link to={user ? "/account" : "/login"} className="btn-luxe mt-6" onClick={() => setOpen(false)}>
+            {user ? "Go to account" : "Sign in"}
           </Link>
         </aside>
       </div>
@@ -77,7 +78,7 @@ export function AdminDashboard() {
             </header>
 
             <nav className="px-4 pt-4 flex flex-wrap gap-1.5 text-xs">
-              {(["sections","theme","typography","motion","seo","brand","header","hero","about","services","projects","testimonials","journal","contact","footer","data"] as Tab[]).map((t) => (
+              {(["sections","orders","packages","payments","users","emails","theme","typography","motion","seo","brand","header","hero","about","services","projects","testimonials","journal","contact","footer","data"] as Tab[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
@@ -90,6 +91,11 @@ export function AdminDashboard() {
 
             <div className="p-4 space-y-4">
               {tab === "sections" && <SectionsTab />}
+              {tab === "orders" && <OrdersTab />}
+              {tab === "packages" && <PackagesTab />}
+              {tab === "payments" && <PaymentMethodsTab />}
+              {tab === "users" && <UsersTab />}
+              {tab === "emails" && <EmailsTab />}
               {tab === "theme" && <ThemeTab />}
               {tab === "typography" && <TypographyTab />}
               {tab === "motion" && <MotionTab />}
@@ -122,7 +128,7 @@ export function AdminDashboard() {
   );
 }
 
-type Tab = "sections"|"theme"|"typography"|"motion"|"seo"|"brand"|"header"|"hero"|"about"|"services"|"projects"|"testimonials"|"journal"|"contact"|"footer"|"data";
+type Tab = "sections"|"orders"|"packages"|"payments"|"users"|"emails"|"theme"|"typography"|"motion"|"seo"|"brand"|"header"|"hero"|"about"|"services"|"projects"|"testimonials"|"journal"|"contact"|"footer"|"data";
 
 const FONT_OPTIONS = ["Fraunces","Playfair Display","Cormorant Garamond","DM Serif Display","Inter","Manrope","Space Grotesk","Plus Jakarta Sans","Syne","Outfit","Bricolage Grotesque","Instrument Serif"];
 

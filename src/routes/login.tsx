@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -21,16 +21,18 @@ const pwSchema = z.string().min(8).max(128);
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
 
-  if (user) {
-    setTimeout(() => navigate({ to: "/admin" }), 0);
-  }
+  useEffect(() => {
+    if (!loading && user) {
+      navigate({ to: isAdmin ? "/admin" : "/account" });
+    }
+  }, [loading, user, isAdmin, navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +48,7 @@ function LoginPage() {
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: `${window.location.origin}/admin`, data: { full_name: name } },
+          options: { emailRedirectTo: `${window.location.origin}/account`, data: { full_name: name } },
         });
         if (error) throw error;
         toast.success("Account created. You're signed in.");
@@ -55,7 +57,6 @@ function LoginPage() {
         if (error) throw error;
         toast.success("Welcome back.");
       }
-      navigate({ to: "/admin" });
     } catch (err: any) {
       toast.error(err?.message ?? "Sign-in failed");
     } finally {
@@ -63,14 +64,22 @@ function LoginPage() {
     }
   };
 
+  const forgot = async () => {
+    if (!email) { toast.error("Enter your email first."); return; }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) toast.error(error.message);
+    else toast.success("Password reset link sent.");
+  };
+
   const google = async () => {
     setBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/admin`,
+      redirect_uri: `${window.location.origin}/account`,
     });
     if (result.error) { toast.error("Google sign-in failed"); setBusy(false); return; }
     if (result.redirected) return;
-    navigate({ to: "/admin" });
   };
 
   return (
@@ -107,6 +116,12 @@ function LoginPage() {
             {busy ? "…" : mode === "signin" ? "Sign in" : "Create account"}
           </button>
         </form>
+
+        {mode === "signin" && (
+          <button onClick={forgot} className="text-xs text-muted-foreground hover:text-gold mt-4 block w-full text-center">
+            Forgot your password?
+          </button>
+        )}
 
         <p className="text-xs text-muted-foreground text-center mt-6">
           {mode === "signin" ? "Don't have an account?" : "Already have one?"}{" "}

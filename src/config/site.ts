@@ -20,11 +20,10 @@ export type SocialLink = { label: string; href: string; icon: string };
 export const site = {
   /* ── Brand ─────────────────────────────────────────────── */
   brand: {
-    name: "LUXE",
-    // Replace with image path (e.g. "/images/logo.svg") or keep text logo
-    logoText: "LUXE",
+    name: "Amir Nazir",
+    logoText: "Amir Nazir",
     logoImage: null as string | null,
-    tagline: "Crafting digital experiences with intention.",
+    tagline: "UAE-based creative developer & digital designer.",
   },
 
   /* ── Theme tokens (live-editable in admin) ─────────────── */
@@ -60,19 +59,20 @@ export const site = {
 
   /* ── SEO defaults + per-page overrides (admin-controlled)  */
   seo: {
-    title: "LUXE — Premium Creative Portfolio",
+    title: "Amir Nazir — Creative Developer & Digital Designer",
     description:
-      "An award-winning creative studio crafting refined digital experiences, brand systems and immersive 3D interfaces.",
-    url: "https://luxe.example.com",
-    twitter: "@luxe",
+      "UAE-based creative developer crafting cinematic websites, brand systems and immersive 3D interfaces.",
+    url: "https://amirnazir.lovable.app",
+    twitter: "@amirnazir",
     ogImage: "" as string,
     pages: {
-      "/":         { title: "LUXE — Premium Creative Portfolio", description: "An award-winning creative studio crafting refined digital experiences, brand systems and immersive 3D interfaces.", ogImage: "", canonical: "" },
-      "/work":     { title: "Work — LUXE Studio",     description: "Selected projects across brand, web, 3D and motion.",           ogImage: "", canonical: "" },
-      "/about":    { title: "About — LUXE Studio",    description: "A studio of one with the precision of ten.",                    ogImage: "", canonical: "" },
-      "/services": { title: "Services — LUXE Studio", description: "Crafted offerings across brand, web, 3D and art direction.",    ogImage: "", canonical: "" },
-      "/journal":  { title: "Journal — LUXE Studio",  description: "Field notes on craft, process and the slow web.",               ogImage: "", canonical: "" },
-      "/contact":  { title: "Contact — LUXE Studio",  description: "Currently accepting two new engagements per quarter.",          ogImage: "", canonical: "" },
+      "/":         { title: "Amir Nazir — Creative Developer", description: "UAE-based creative developer crafting cinematic websites, brand systems and immersive 3D interfaces.", ogImage: "", canonical: "" },
+      "/work":     { title: "Work — Amir Nazir",     description: "Selected projects across brand, web, 3D and motion.",           ogImage: "", canonical: "" },
+      "/about":    { title: "About — Amir Nazir",    description: "An independent creative developer based in the UAE.",            ogImage: "", canonical: "" },
+      "/services": { title: "Services — Amir Nazir", description: "Brand, web, 3D and art direction.",                              ogImage: "", canonical: "" },
+      "/pricing":  { title: "Pricing — Amir Nazir",  description: "Transparent monthly packages for ongoing creative partnerships.", ogImage: "", canonical: "" },
+      "/journal":  { title: "Journal — Amir Nazir",  description: "Field notes on craft, process and the slow web.",                ogImage: "", canonical: "" },
+      "/contact":  { title: "Contact — Amir Nazir",  description: "Currently accepting two new engagements per quarter.",           ogImage: "", canonical: "" },
     } as Record<string, { title: string; description: string; ogImage: string; canonical: string }>,
   },
 
@@ -85,6 +85,7 @@ export const site = {
       { label: "Work", href: "/work" },
       { label: "About", href: "/about" },
       { label: "Services", href: "/services" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Journal", href: "/journal" },
       { label: "Contact", href: "/contact" },
     ] as NavItem[],
@@ -342,7 +343,7 @@ export const site = {
       placeholder: "you@studio.com",
       cta: "Subscribe",
     },
-    copyright: `© ${new Date().getFullYear()} LUXE Studio. All rights reserved.`,
+    copyright: `© ${new Date().getFullYear()} Amir Nazir. All rights reserved.`,
   },
 };
 
