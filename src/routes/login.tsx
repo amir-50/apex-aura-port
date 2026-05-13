@@ -117,6 +117,12 @@ function LoginPage() {
           </button>
         </form>
 
+        {mode === "signin" && (
+          <button onClick={forgot} className="text-xs text-muted-foreground hover:text-gold mt-4 block w-full text-center">
+            Forgot your password?
+          </button>
+        )}
+
         <p className="text-xs text-muted-foreground text-center mt-6">
           {mode === "signin" ? "Don't have an account?" : "Already have one?"}{" "}
           <button onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="text-gold hover:underline">
