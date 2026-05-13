@@ -20,11 +20,10 @@ export type SocialLink = { label: string; href: string; icon: string };
 export const site = {
   /* ── Brand ─────────────────────────────────────────────── */
   brand: {
-    name: "LUXE",
-    // Replace with image path (e.g. "/images/logo.svg") or keep text logo
-    logoText: "LUXE",
+    name: "Amir Nazir",
+    logoText: "Amir Nazir",
     logoImage: null as string | null,
-    tagline: "Crafting digital experiences with intention.",
+    tagline: "UAE-based creative developer & digital designer.",
   },
 
   /* ── Theme tokens (live-editable in admin) ─────────────── */
