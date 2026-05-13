@@ -42,10 +42,10 @@ export function AdminDashboard() {
           <Lock className="text-gold" size={36} />
           <h3 className="font-display text-xl mt-4">Admin sign-in required</h3>
           <p className="text-sm text-muted-foreground mt-2 max-w-xs">
-            {user ? "Your account doesn't have admin access yet. Visit /admin to claim it." : "Sign in to edit this site."}
+            {user ? "Your account doesn't have admin access." : "Sign in to edit this site."}
           </p>
-          <Link to={user ? "/admin" : "/login"} className="btn-luxe mt-6" onClick={() => setOpen(false)}>
-            {user ? "Go to admin" : "Sign in"}
+          <Link to={user ? "/account" : "/login"} className="btn-luxe mt-6" onClick={() => setOpen(false)}>
+            {user ? "Go to account" : "Sign in"}
           </Link>
         </aside>
       </div>
