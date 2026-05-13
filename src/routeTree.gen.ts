@@ -20,6 +20,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PricingCheckoutIdRouteImport } from './routes/pricing.checkout.$id'
 
 const WorkRoute = WorkRouteImport.update({
   id: '/work',
@@ -76,6 +77,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingCheckoutIdRoute = PricingCheckoutIdRouteImport.update({
+  id: '/checkout/$id',
+  path: '/checkout/$id',
+  getParentRoute: () => PricingRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -85,10 +91,11 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
-  '/pricing': typeof PricingRoute
+  '/pricing': typeof PricingRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/work': typeof WorkRoute
+  '/pricing/checkout/$id': typeof PricingCheckoutIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -98,10 +105,11 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
-  '/pricing': typeof PricingRoute
+  '/pricing': typeof PricingRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/work': typeof WorkRoute
+  '/pricing/checkout/$id': typeof PricingCheckoutIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -112,10 +120,11 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
-  '/pricing': typeof PricingRoute
+  '/pricing': typeof PricingRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/work': typeof WorkRoute
+  '/pricing/checkout/$id': typeof PricingCheckoutIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/services'
     | '/work'
+    | '/pricing/checkout/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/services'
     | '/work'
+    | '/pricing/checkout/$id'
   id:
     | '__root__'
     | '/'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/services'
     | '/work'
+    | '/pricing/checkout/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -167,7 +179,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   JournalRoute: typeof JournalRoute
   LoginRoute: typeof LoginRoute
-  PricingRoute: typeof PricingRoute
+  PricingRoute: typeof PricingRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   WorkRoute: typeof WorkRoute
@@ -252,8 +264,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing/checkout/$id': {
+      id: '/pricing/checkout/$id'
+      path: '/checkout/$id'
+      fullPath: '/pricing/checkout/$id'
+      preLoaderRoute: typeof PricingCheckoutIdRouteImport
+      parentRoute: typeof PricingRoute
+    }
   }
 }
+
+interface PricingRouteChildren {
+  PricingCheckoutIdRoute: typeof PricingCheckoutIdRoute
+}
+
+const PricingRouteChildren: PricingRouteChildren = {
+  PricingCheckoutIdRoute: PricingCheckoutIdRoute,
+}
+
+const PricingRouteWithChildren =
+  PricingRoute._addFileChildren(PricingRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -263,7 +293,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   JournalRoute: JournalRoute,
   LoginRoute: LoginRoute,
-  PricingRoute: PricingRoute,
+  PricingRoute: PricingRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   WorkRoute: WorkRoute,
