@@ -78,7 +78,7 @@ export function AdminDashboard() {
             </header>
 
             <nav className="px-4 pt-4 flex flex-wrap gap-1.5 text-xs">
-              {(["sections","theme","typography","motion","seo","brand","header","hero","about","services","projects","testimonials","journal","contact","footer","data"] as Tab[]).map((t) => (
+              {(["sections","orders","packages","payments","users","emails","theme","typography","motion","seo","brand","header","hero","about","services","projects","testimonials","journal","contact","footer","data"] as Tab[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
@@ -91,6 +91,11 @@ export function AdminDashboard() {
 
             <div className="p-4 space-y-4">
               {tab === "sections" && <SectionsTab />}
+              {tab === "orders" && <OrdersTab />}
+              {tab === "packages" && <PackagesTab />}
+              {tab === "payments" && <PaymentMethodsTab />}
+              {tab === "users" && <UsersTab />}
+              {tab === "emails" && <EmailsTab />}
               {tab === "theme" && <ThemeTab />}
               {tab === "typography" && <TypographyTab />}
               {tab === "motion" && <MotionTab />}
