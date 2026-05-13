@@ -5,6 +5,7 @@ import { useSiteConfig } from "@/config/SiteConfigProvider";
 import { useAuth } from "@/hooks/useAuth";
 import { uploadSiteAsset } from "@/lib/uploadAsset";
 import { toast } from "sonner";
+import { OrdersTab, PackagesTab, PaymentMethodsTab, EmailsTab, UsersTab } from "./AdminPanels";
 
 /**
  * In-browser admin dashboard. Floating panel at bottom-right.
