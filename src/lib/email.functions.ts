@@ -18,17 +18,9 @@ async function logEmail(to: string, subject: string, template: string | null, st
   await supabaseAdmin.from("email_log").insert({ to_email: to, subject, template, status, error: error ?? null });
 }
 
-async function sendViaSmtp(cfg: SmtpConfig, to: string, subject: string, html: string) {
-  const nodemailer: any = await import("nodemailer").catch(() => null);
-  if (!nodemailer) throw new Error("SMTP module unavailable in runtime");
-  const transporter = nodemailer.createTransport({
-    host: cfg.smtp_host!, port: cfg.smtp_port ?? 587, secure: !!cfg.smtp_secure,
-    auth: { user: cfg.smtp_user!, pass: cfg.smtp_pass! },
-  });
-  await transporter.sendMail({
-    from: `"${cfg.from_name ?? "Amir Nazir"}" <${cfg.from_email ?? cfg.smtp_user}>`,
-    to, subject, html,
-  });
+async function sendViaSmtp(_cfg: SmtpConfig, _to: string, _subject: string, _html: string) {
+  // SMTP not yet wired in this runtime — falls back to platform email below.
+  throw new Error("SMTP runtime not available; using platform email fallback");
 }
 
 async function sendViaLovable(to: string, subject: string, html: string, fromName: string) {
