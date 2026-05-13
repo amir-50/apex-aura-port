@@ -343,7 +343,7 @@ export const site = {
       placeholder: "you@studio.com",
       cta: "Subscribe",
     },
-    copyright: `© ${new Date().getFullYear()} LUXE Studio. All rights reserved.`,
+    copyright: `© ${new Date().getFullYear()} Amir Nazir. All rights reserved.`,
   },
 };
 
