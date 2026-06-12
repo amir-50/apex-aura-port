@@ -20,7 +20,10 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
+import { Route as AdminBuilderRouteImport } from './routes/admin.builder'
 import { Route as PricingCheckoutIdRouteImport } from './routes/pricing.checkout.$id'
+import { Route as AdminBuilderIdRouteImport } from './routes/admin.builder.$id'
 
 const WorkRoute = WorkRouteImport.update({
   id: '/work',
@@ -77,17 +80,32 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminBuilderRoute = AdminBuilderRouteImport.update({
+  id: '/builder',
+  path: '/builder',
+  getParentRoute: () => AdminRoute,
+} as any)
 const PricingCheckoutIdRoute = PricingCheckoutIdRouteImport.update({
   id: '/checkout/$id',
   path: '/checkout/$id',
   getParentRoute: () => PricingRoute,
+} as any)
+const AdminBuilderIdRoute = AdminBuilderIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminBuilderRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
@@ -95,13 +113,16 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/work': typeof WorkRoute
+  '/admin/builder': typeof AdminBuilderRouteWithChildren
+  '/p/$slug': typeof PSlugRoute
+  '/admin/builder/$id': typeof AdminBuilderIdRoute
   '/pricing/checkout/$id': typeof PricingCheckoutIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
@@ -109,6 +130,9 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/work': typeof WorkRoute
+  '/admin/builder': typeof AdminBuilderRouteWithChildren
+  '/p/$slug': typeof PSlugRoute
+  '/admin/builder/$id': typeof AdminBuilderIdRoute
   '/pricing/checkout/$id': typeof PricingCheckoutIdRoute
 }
 export interface FileRoutesById {
@@ -116,7 +140,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/account': typeof AccountRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/contact': typeof ContactRoute
   '/journal': typeof JournalRoute
   '/login': typeof LoginRoute
@@ -124,6 +148,9 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/services': typeof ServicesRoute
   '/work': typeof WorkRoute
+  '/admin/builder': typeof AdminBuilderRouteWithChildren
+  '/p/$slug': typeof PSlugRoute
+  '/admin/builder/$id': typeof AdminBuilderIdRoute
   '/pricing/checkout/$id': typeof PricingCheckoutIdRoute
 }
 export interface FileRouteTypes {
@@ -140,6 +167,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/services'
     | '/work'
+    | '/admin/builder'
+    | '/p/$slug'
+    | '/admin/builder/$id'
     | '/pricing/checkout/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -154,6 +184,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/services'
     | '/work'
+    | '/admin/builder'
+    | '/p/$slug'
+    | '/admin/builder/$id'
     | '/pricing/checkout/$id'
   id:
     | '__root__'
@@ -168,6 +201,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/services'
     | '/work'
+    | '/admin/builder'
+    | '/p/$slug'
+    | '/admin/builder/$id'
     | '/pricing/checkout/$id'
   fileRoutesById: FileRoutesById
 }
@@ -175,7 +211,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   ContactRoute: typeof ContactRoute
   JournalRoute: typeof JournalRoute
   LoginRoute: typeof LoginRoute
@@ -183,6 +219,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   ServicesRoute: typeof ServicesRoute
   WorkRoute: typeof WorkRoute
+  PSlugRoute: typeof PSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -264,6 +301,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/builder': {
+      id: '/admin/builder'
+      path: '/builder'
+      fullPath: '/admin/builder'
+      preLoaderRoute: typeof AdminBuilderRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/pricing/checkout/$id': {
       id: '/pricing/checkout/$id'
       path: '/checkout/$id'
@@ -271,8 +322,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingCheckoutIdRouteImport
       parentRoute: typeof PricingRoute
     }
+    '/admin/builder/$id': {
+      id: '/admin/builder/$id'
+      path: '/$id'
+      fullPath: '/admin/builder/$id'
+      preLoaderRoute: typeof AdminBuilderIdRouteImport
+      parentRoute: typeof AdminBuilderRoute
+    }
   }
 }
+
+interface AdminBuilderRouteChildren {
+  AdminBuilderIdRoute: typeof AdminBuilderIdRoute
+}
+
+const AdminBuilderRouteChildren: AdminBuilderRouteChildren = {
+  AdminBuilderIdRoute: AdminBuilderIdRoute,
+}
+
+const AdminBuilderRouteWithChildren = AdminBuilderRoute._addFileChildren(
+  AdminBuilderRouteChildren,
+)
+
+interface AdminRouteChildren {
+  AdminBuilderRoute: typeof AdminBuilderRouteWithChildren
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminBuilderRoute: AdminBuilderRouteWithChildren,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface PricingRouteChildren {
   PricingCheckoutIdRoute: typeof PricingCheckoutIdRoute
@@ -289,7 +369,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   ContactRoute: ContactRoute,
   JournalRoute: JournalRoute,
   LoginRoute: LoginRoute,
@@ -297,6 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   ServicesRoute: ServicesRoute,
   WorkRoute: WorkRoute,
+  PSlugRoute: PSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
