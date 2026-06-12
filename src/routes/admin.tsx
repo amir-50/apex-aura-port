@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { ShieldCheck, LogOut } from "lucide-react";
+import { ShieldCheck, LogOut, LayoutTemplate } from "lucide-react";
+
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -41,16 +42,26 @@ function AdminPage() {
           </button>
         </div>
 
-        <div className="glass-card rounded-3xl p-8 mt-10 flex items-start gap-4">
-          <ShieldCheck className="text-gold mt-1" size={28} />
-          <div>
-            <h2 className="font-display text-2xl">All controls live in the side panel</h2>
-            <p className="text-sm text-muted-foreground mt-2 max-w-xl">
-              Open the Admin panel (bottom-right floating button, or ⌘/Ctrl + Shift + A) to edit branding, sections, theme, SEO, manage subscription orders, packages, payment methods, users, and email settings.
-            </p>
+        <div className="grid md:grid-cols-2 gap-4 mt-10">
+          <Link to="/admin/builder" className="glass-card rounded-3xl p-8 flex items-start gap-4 hover:border-primary/40 transition group">
+            <LayoutTemplate className="text-gold mt-1 group-hover:scale-110 transition" size={28} />
+            <div>
+              <h2 className="font-display text-2xl">Page Builder</h2>
+              <p className="text-sm text-muted-foreground mt-2">Build new pages visually — drag widgets, edit text/images/buttons live, publish at <code>/p/your-slug</code>.</p>
+            </div>
+          </Link>
+          <div className="glass-card rounded-3xl p-8 flex items-start gap-4">
+            <ShieldCheck className="text-gold mt-1" size={28} />
+            <div>
+              <h2 className="font-display text-2xl">Site Settings</h2>
+              <p className="text-sm text-muted-foreground mt-2">
+                Open the Admin side panel (⌘/Ctrl + Shift + A) to edit branding, theme, SEO, orders, packages, users, and email settings.
+              </p>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
   );
 }
